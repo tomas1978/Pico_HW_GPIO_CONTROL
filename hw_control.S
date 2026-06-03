@@ -30,6 +30,7 @@ loop:
 	B loop
 
 initialize:
+	MOV R3, R0
 	@ Initialize pin for SIO function
 	LDR R1, =GPIO0_CTRL
 	MOV R2, #4 @Number to multiply pin number with to make offset address
@@ -41,6 +42,7 @@ initialize:
 
 	LDR R0, =GPIO_OE_SET 	@ LED = OUTPUT
 	MOV R1, #1  	@ Set pin ..0001 <-> GPIO-pin 0
+	LSL R1, R3		@ Shift to selected pin position
 	STR R1, [R0]
 	BX LR
 
