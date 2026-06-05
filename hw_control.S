@@ -60,3 +60,7 @@ pin_off:
     LSL R1, R0
     STR R1, [R2]
     BX LR
+
+pin_read:
+	@Code for checking if input on pin is HIGH or LOW
+	BX LR
