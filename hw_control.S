@@ -1,9 +1,9 @@
 @ REGISTER breadboard
-	.EQU	LED_PIN, 1
+	.EQU	LED_PIN, 2
 	.EQU	PUSHBUTTON1, 1
 	.EQU	PUSHBUTTON2, 2
-	.EQU	GPIO_INPUT, 0
-	.EQU	GPIO_OUTPUT, 1
+	.EQU	GPIO_IN, 0
+	.EQU	GPIO_OUT, 1
 	
 
 @ Set up addresses for hardware registers
@@ -15,7 +15,7 @@
 	.EQU	GPIO_OUT_SET, 0xD0000014	@ Set pin HIGH (1)
 	.EQU	GPIO_OUT_CLR, 0xD0000018	@ Set pin LOW (0)
 
-	.EQU	GPIO_IN, 0xD0000004			@ GPIO input register
+	.EQU	GPIO_IN_REG, 0xD0000004			@ GPIO input register
 
 
 .thumb_func	@ Necessary because sdk uses BLX
@@ -23,18 +23,29 @@
 
 main:
 	MOV R0, #LED_PIN
-	MOV R1, #GPIO_OUTPUT
+	MOV R1, #GPIO_OUT
 	BL initialize
 
 loop: 
 	MOV R0, #LED_PIN
-	bl pin_on
+	BL pin_on
 	
 	B loop
 
 initialize:
-CMP R1, #0
-BEQ set_input
+    MOV R3, R0          @ Spara pinnummer
+
+    @ Välj SIO-funktion för GPIO
+    LDR R2, =GPIO0_CTRL
+    LSL R0, #3          @ 8 byte mellan GPIOx_CTRL
+    ADD R0, R2
+
+    MOV R2, #5          @ Funktion 5 = SIO
+    STR R2, [R0]
+
+    @ Välj riktning
+    CMP R1, #GPIO_IN
+    BEQ set_input
 
 set_output:
     LDR R0, =GPIO_OE_SET
@@ -45,8 +56,9 @@ set_input:
 
 write_oe:
     MOV R1, #1
-    LSL R1, R3
+    LSL R1, R3          @ Skapa bitmask för vald pin
     STR R1, [R0]
+
     BX LR
 
 pin_on:
@@ -55,6 +67,7 @@ pin_on:
     LSL R1, R0
     STR R1, [R2]
     BX LR
+
 
 pin_off:
     LDR R2, =GPIO_OUT_CLR
