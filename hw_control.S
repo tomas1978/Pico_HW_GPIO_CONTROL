@@ -26,20 +26,26 @@ main:
 	MOV R1, #GPIO_OUT
 	BL initialize
 
+    MOV R0, #PUSHBUTTON1
+    MOV R1, #GPIO_IN
+    BL initialize
+
 loop: 
 	MOV R0, #PUSHBUTTON1
     BL pin_read
+    
     CMP R0, #0
     BEQ turn_off
     
     MOV R0, #LED_PIN
 	BL pin_on
-	
+	B continue
+
     turn_off:
     MOV R0, #LED_PIN
 	BL pin_off
 	
-
+    continue:
 	B loop
 
 initialize:
@@ -90,8 +96,9 @@ pin_read:
 	@Code for checking if input on pin is HIGH or LOW
     MOV R3, R0
     LDR R2, =GPIO_IN_REG
+    LDR R0,[R2] @Read from input register
     MOV R1, #1
-    LSL R1, R0  @Bitmask for masking out the pin
+    LSL R1, R3  @Bitmask for masking out the pin
     AND R0, R1
     LSR R0, R3  @Shift result bit to rightmost position
 	BX LR
