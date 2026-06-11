@@ -1,13 +1,15 @@
-@ REGISTER breadboard
+@Function: If button is held down, LED is turned on
+@If button is not down, LED is turned off
+
+@ Define constants for pins
 	.EQU	LED_PIN, 2
 	.EQU	PUSHBUTTON1, 1
-	.EQU	PUSHBUTTON2, 2
 	.EQU	GPIO_IN, 0
 	.EQU	GPIO_OUT, 1
 	
 
 @ Set up addresses for hardware registers
-	.EQU	GPIO0_CTRL,  0x40014004	@ Control register for GPIO-pin 0
+	.EQU	GPIO0_CTRL,  0x40014004	    @ Control register for GPIO-pin 0
 	
 	.EQU	GPIO_OE_SET, 0xD0000024		@ Register to set pin to OUTPUT
 	.EQU	GPIO_OE_CLR, 0xD0000028		@ Register to set pin to INTPUT
@@ -15,7 +17,7 @@
 	.EQU	GPIO_OUT_SET, 0xD0000014	@ Set pin HIGH (1)
 	.EQU	GPIO_OUT_CLR, 0xD0000018	@ Set pin LOW (0)
 
-	.EQU	GPIO_IN_REG,  0xD0000004		@ GPIO input register
+	.EQU	GPIO_IN_REG,  0xD0000004	@ GPIO input register
 
 
 .thumb_func	    @ Necessary because sdk uses BLX
@@ -49,7 +51,7 @@ loop:
 	B loop
 
 initialize:
-    MOV R3, R0          @Save pin number
+    MOV R3, R0          @ Save pin number
 
     @ Choose SIO-function for GPIO
     LDR R2, =GPIO0_CTRL
@@ -72,7 +74,7 @@ set_input:
 
 write_oe:
     MOV R1, #1
-    LSL R1, R3          @Create bitmask for selected pin
+    LSL R1, R3          @ Create bitmask for selected pin
     STR R1, [R0]
 
     BX LR
@@ -93,12 +95,12 @@ pin_off:
     BX LR
 
 pin_read:
-	@Code for checking if input on pin is HIGH or LOW
+	@ Code for checking if input on pin is HIGH or LOW
     MOV R3, R0
     LDR R2, =GPIO_IN_REG
-    LDR R0,[R2]     @Read from input register
+    LDR R0,[R2]     @ Read from input register
     MOV R1, #1
-    LSL R1, R3      @Bitmask for masking out the pin
+    LSL R1, R3      @ Bitmask for masking out the pin
     AND R0, R1
-    LSR R0, R3      @Shift result bit to rightmost position
+    LSR R0, R3      @ Shift result bit to rightmost position
 	BX LR
